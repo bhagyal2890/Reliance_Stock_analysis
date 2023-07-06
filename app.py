@@ -24,7 +24,7 @@ if bt:
     df = yf.download('RELIANCE.NS', start=START, end=END)
     plotdf, future_predicted_values =m.create_model(df)
     df.reset_index(inplace = True)
-    st.title('Reliance Stock Market Prediction')
+    st.title('Reliance_Stock_Analysis')
     st.header("Data We collected from the source")
     st.write(df)
 
@@ -36,39 +36,31 @@ if bt:
     reliance=reliance.set_index('Date')
     st.title('EDA')
     st.write(reliance)
-
-
 # ---------------------------Graphs--------------------------------------
-
     st.set_option('deprecation.showPyplotGlobalUse', False)
     st.title('Visualizations')
 
     st.header("Graphs")
     plt.figure(figsize=(20,10))
-    st.pyplot(fig=plt)
     #Plot 1
-    plt.subplot(2,2,1)
     plt.plot(reliance['Open'],color='green')
     plt.xlabel('Date')
     plt.ylabel('Open Price')
     plt.title('Open')
     st.pyplot(fig=plt)
     #Plot 2
-    plt.subplot(2,2,2)
     plt.plot(reliance['Close'],color='red')
     plt.xlabel('Date')
     plt.ylabel('Close Price')
     plt.title('Close')
     st.pyplot(fig=plt)
     #Plot 3
-    plt.subplot(2,2,3)
     plt.plot(reliance['High'],color='green')
     plt.xlabel('Date')
     plt.ylabel('High Price')
     plt.title('High')
     st.pyplot(fig=plt)
     #Plot 4
-    plt.subplot(2,2,4)
     plt.plot(reliance['Low'],color='red')
     plt.xlabel('Date')
     plt.ylabel('Low Price')
