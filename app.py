@@ -371,7 +371,14 @@ if bt:
 
 
     names = cycle(['SVR', 'RF','KNN','LSTM','GRU'])
-
+    finaldf = pd.DataFrame({
+        'svr':svrdf,
+        'rf':rfdf,
+        'knn':knndf,
+        'lstm':lstmdf,
+        'gru':grudf,
+    })
+    finaldf
     fig = px.line(finaldf[225:], x=finaldf.index[225:], y=[finaldf['svr'][225:],finaldf['rf'][225:], finaldf['knn'][225:], 
                                           finaldf['lstm'][225:], finaldf['gru'][225:],],
              labels={'x': 'Timestamp','value':'Stock close price'})
