@@ -237,6 +237,7 @@ if bt:
     original_ytest = scaler.inverse_transform(y_test.reshape(-1,1)) 
     
     # Evaluation metrices RMSE and MAE
+    import math
     print("Train data RMSE: ", math.sqrt(mean_squared_error(original_ytrain,train_predict)))
     print("Train data MSE: ", mean_squared_error(original_ytrain,train_predict))
     print("Test data MAE: ", mean_absolute_error(original_ytrain,train_predict))
@@ -380,9 +381,3 @@ if bt:
     fig.update_yaxes(showgrid=False)
 
     st.pyplot(fig=plt)
-
-
-
-
-
-
