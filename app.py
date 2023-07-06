@@ -58,8 +58,10 @@ if bt:
     plt.xlabel('Date')
     plt.ylabel('Close Price')
     plt.title('Close')
+    st.pyplot(fig=plt)
     #Plot 3
     plt.subplot(2,2,3)
     plt.plot(reliance['High'],color='green')
     plt.xlabel('Date')
     plt.ylabel('High Price')
+    st.pyplot(fig=plt)
