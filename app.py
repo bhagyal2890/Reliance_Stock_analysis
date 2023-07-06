@@ -51,20 +51,17 @@ if bt:
     plt.xlabel('Date')
     plt.ylabel('Open Price')
     plt.title('Open')
-    st.pyplot(fig=plt)
     #Plot 2
     plt.subplot(2,2,2)
     plt.plot(reliance['Close'],color='red')
     plt.xlabel('Date')
     plt.ylabel('Close Price')
     plt.title('Close')
-    st.pyplot(fig=plt)
     #Plot 3
     plt.subplot(2,2,3)
     plt.plot(reliance['High'],color='green')
     plt.xlabel('Date')
     plt.ylabel('High Price')
-    st.pyplot(fig=plt)
     
     st.header("Graphs- Box Plot")
     plt.figure(figsize=(20,10))
