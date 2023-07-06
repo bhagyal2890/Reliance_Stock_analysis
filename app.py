@@ -209,12 +209,12 @@ if bt:
     print("test_data: ", test_data.shape)
     # convert an array of values into a dataset matrix
     def create_dataset(dataset, time_step=1):
-    dataX, dataY = [], []
-    for i in range(len(dataset)-time_step-1):
-        a = dataset[i:(i+time_step), 0]   ###i=0, 0,1,2,3-----99   100 
-        dataX.append(a)
-        dataY.append(dataset[i + time_step, 0])
-    return np.array(dataX), np.array(dataY)
+        dataX, dataY = [], []
+        for i in range(len(dataset)-time_step-1):
+            a = dataset[i:(i+time_step), 0]   ###i=0, 0,1,2,3-----99   100 
+            dataX.append(a)
+            dataY.append(dataset[i + time_step, 0])
+        return np.array(dataX), np.array(dataY)
     # reshape into X=t,t+1,t+2,t+3 and Y=t+4
     time_step = 13
     X_train, y_train = create_dataset(train_data, time_step)
