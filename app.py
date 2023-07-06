@@ -151,6 +151,10 @@ if bt:
     plt.title('Date vs Volume')
     st.pyplot(fig=plt)
 
+    reliance_ma=reliance.copy()
+    reliance_ma['30-day MA']=reliance['Close'].rolling(window=30).mean()
+    reliance_ma['200-day MA']=reliance['Close'].rolling(window=200).mean()
+
     plt.figure(figsize=(20,10))
     plt.plot(reliance_ma['Close'],label='Original data')
     plt.plot(reliance_ma['30-day MA'],label='30-MA')
@@ -169,6 +173,7 @@ if bt:
     plt.ylabel('Price')
     st.pyplot(fig=plt)
 
+    # Model Building
     from sklearn.metrics import mean_squared_error, mean_absolute_error, explained_variance_score, r2_score 
     from sklearn.metrics import mean_poisson_deviance, mean_gamma_deviance, accuracy_score
     from sklearn.preprocessing import MinMaxScaler
@@ -183,7 +188,43 @@ if bt:
     import plotly.graph_objects as go
     import plotly.express as px
     from plotly.subplots import make_subplots
+    reliance
+    # Creating dataframe which only includes date and close time
 
+    close_df=pd.DataFrame(reliance['Close'])
+    close_df
+    close_df=close_df.reset_index()
+    close_df['Date']
+    close_stock = close_df.copy()
+    del close_df['Date']
+    scaler=MinMaxScaler(feature_range=(0,1))
+    closedf=scaler.fit_transform(np.array(close_df).reshape(-1,1))
+    print(closedf.shape)
+    # Split data into training and testing sets
+
+    train_size= int(len(closedf)*0.86)
+    test_size=len(closedf)-training_size
+    train_data,test_data=closedf[0:training_size,:],closedf[training_size:len(closedf),:1]
+    print("train_data: ", train_data.shape)
+    print("test_data: ", test_data.shape)
+    # convert an array of values into a dataset matrix
+    def create_dataset(dataset, time_step=1):
+    dataX, dataY = [], []
+    for i in range(len(dataset)-time_step-1):
+        a = dataset[i:(i+time_step), 0]   ###i=0, 0,1,2,3-----99   100 
+        dataX.append(a)
+        dataY.append(dataset[i + time_step, 0])
+    return np.array(dataX), np.array(dataY)
+    # reshape into X=t,t+1,t+2,t+3 and Y=t+4
+    time_step = 13
+    X_train, y_train = create_dataset(train_data, time_step)
+    X_test, y_test = create_dataset(test_data, time_step)
+
+    print("X_train: ", X_train.shape)
+    print("y_train: ", y_train.shape)
+    print("X_test: ", X_test.shape)
+    print("y_test", y_test.shape)
+    
     # reshape input to be [samples, time steps, features] which is required for LSTM
     X_train =X_train.reshape(X_train.shape[0],X_train.shape[1] , 1)
     X_test = X_test.reshape(X_test.shape[0],X_test.shape[1] , 1)
@@ -198,6 +239,32 @@ if bt:
     model.add(Dense(1))
     model.compile(loss='mean_squared_error',optimizer='adam')
     # shift train predictions for plotting
+    model.fit(X_train,y_train,validation_data=(X_test,y_test),epochs=100,batch_size=32,verbose=1)
+    ### Lets Do the prediction and check performance metrics
+    train_predict=model.predict(X_train)
+    test_predict=model.predict(X_test)
+    train_predict.shape, test_predict.shape
+    # Transform back to original form
+
+    train_predict = scaler.inverse_transform(train_predict)
+    test_predict = scaler.inverse_transform(test_predict)
+    original_ytrain = scaler.inverse_transform(y_train.reshape(-1,1)) 
+    original_ytest = scaler.inverse_transform(y_test.reshape(-1,1)) 
+    # Evaluation metrices RMSE and MAE
+    print("Train data RMSE: ", math.sqrt(mean_squared_error(original_ytrain,train_predict)))
+    print("Train data MSE: ", mean_squared_error(original_ytrain,train_predict))
+    print("Test data MAE: ", mean_absolute_error(original_ytrain,train_predict))
+    print("-------------------------------------------------------------------------------------")
+    print("Test data RMSE: ", math.sqrt(mean_squared_error(original_ytest,test_predict)))
+    print("Test data MSE: ", mean_squared_error(original_ytest,test_predict))
+    print("Test data MAE: ", mean_absolute_error(original_ytest,test_predict))
+
+    print("Train data explained variance regression score:", explained_variance_score(original_ytrain, train_predict))
+    print("Test data explained variance regression score:", explained_variance_score(original_ytest, test_predict))
+    train_r2_lstm=r2_score(original_ytrain, train_predict)
+    test_r2_lstm=r2_score(original_ytest, test_predict)
+    print("Train data R2 score:", train_r2_lstm)
+    print("Test data R2 score:", test_r2_lstm)
 
     look_back=time_step
     trainPredictPlot = np.empty_like(closedf)
