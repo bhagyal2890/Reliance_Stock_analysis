@@ -4,7 +4,7 @@ import seaborn as sns
 import yfinance as yf
 import datetime
 import streamlit as st
-import model_building as 
+import model_building as m
 import numpy as np
 
 
