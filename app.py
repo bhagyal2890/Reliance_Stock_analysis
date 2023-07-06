@@ -4,7 +4,8 @@ import seaborn as sns
 import yfinance as yf
 import datetime
 import streamlit as st
-import model_building as m
+import model_building as 
+import numpy as np
 
 
 with st.sidebar:
