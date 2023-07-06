@@ -51,7 +51,7 @@ if bt:
     plt.xlabel('Date')
     plt.ylabel('Open Price')
     plt.title('Open')
-    st.pyplot(fig)
+    st.pyplot(fig=plt)
     #Plot 2
     plt.subplot(2,2,2)
     plt.plot(reliance['Close'],color='red')
