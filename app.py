@@ -44,7 +44,7 @@ if bt:
     st.title('Visualizations')
 
     st.header("Graphs")
-   plt.figure(figsize=(20,10))
+    plt.figure(figsize=(20,10))
     st.pyplot(fig=plt)
     #Plot 1
     plt.subplot(2,2,1)
