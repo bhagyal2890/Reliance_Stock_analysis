@@ -73,28 +73,24 @@ if bt:
     # Creating box-plots
     plt.figure(figsize=(20,10))
     #Plot 1
-    plt.subplot(2,2,1)
     plt.boxplot(reliance['Open'])
     plt.xlabel('Date')
     plt.ylabel('Open Price')
     plt.title('Open')
     st.pyplot(fig=plt)
     #Plot 2
-    plt.subplot(2,2,2)
     plt.boxplot(reliance['Close'])
     plt.xlabel('Date')
     plt.ylabel('Cloes Price')
     plt.title('Close')
     st.pyplot(fig=plt)
     #Plot 3
-    plt.subplot(2,2,3)
     plt.boxplot(reliance['High'])    
     plt.xlabel('Date')
     plt.ylabel('High Price')
     plt.title('High')
     st.pyplot(fig=plt)
     #Plot 4
-    plt.subplot(2,2,4)
     plt.boxplot(reliance['Low'])
     plt.xlabel('Date')
     plt.ylabel('Low Price')
@@ -104,28 +100,24 @@ if bt:
     # Ploting Histogram
     plt.figure(figsize=(20,18))
     #Plot 1
-    plt.subplot(2,2,1)
     plt.hist(reliance['Open'],bins=50, color='green')
     plt.xlabel("Open Price")
     plt.ylabel("Frequency")
     plt.title('Open')
     st.pyplot(fig=plt)
     #Plot 2
-    plt.subplot(2,2,2)
     plt.hist(reliance['Close'],bins=50, color='red')
     plt.xlabel("Close Price")
     plt.ylabel("Frequency")
     plt.title('Close')
     st.pyplot(fig=plt)
     #Plot 3
-    plt.subplot(2,2,3)
     plt.hist(reliance['High'],bins=50, color='green')
     plt.xlabel("High Price")
     plt.ylabel("Frequency")
     plt.title('High')
     st.pyplot(fig=plt)
     #Plot 4
-    plt.subplot(2,2,4)
     plt.hist(reliance['Low'],bins=50, color='red')
     plt.xlabel("Low Price")
     plt.ylabel("Frequency")
@@ -134,7 +126,6 @@ if bt:
     
     sns.heatmap(reliance.corr(),annot=True)
     st.pyplot(fig=plt)
-
 
     figure=plt.figure(figsize=(30,10))
     plt.plot(reliance['Volume'])
@@ -169,20 +160,15 @@ if bt:
     from sklearn.metrics import mean_squared_error, mean_absolute_error, explained_variance_score, r2_score 
     from sklearn.metrics import mean_poisson_deviance, mean_gamma_deviance, accuracy_score
     from sklearn.preprocessing import MinMaxScaler
-
     import tensorflow as tf
     from tensorflow.keras.models import Sequential
     from tensorflow.keras.layers import Dense
     from tensorflow.keras.layers import LSTM, GRU
-    
     from itertools import cycle
-
     import plotly.graph_objects as go
     import plotly.express as px
     from plotly.subplots import make_subplots
-    reliance
-    # Creating dataframe which only includes date and close time
-
+    
     close_df=pd.DataFrame(reliance['Close'])
     close_df
     close_df=close_df.reset_index()
@@ -192,13 +178,14 @@ if bt:
     scaler=MinMaxScaler(feature_range=(0,1))
     closedf=scaler.fit_transform(np.array(close_df).reshape(-1,1))
     print(closedf.shape)
+    
     # Split data into training and testing sets
-
     train_size= int(len(closedf)*0.86)
     test_size=len(closedf)-training_size
     train_data,test_data=closedf[0:training_size,:],closedf[training_size:len(closedf),:1]
     print("train_data: ", train_data.shape)
     print("test_data: ", test_data.shape)
+
     # convert an array of values into a dataset matrix
     def create_dataset(dataset, time_step=1):
         dataX, dataY = [], []
@@ -207,6 +194,7 @@ if bt:
             dataX.append(a)
             dataY.append(dataset[i + time_step, 0])
         return np.array(dataX), np.array(dataY)
+    
     # reshape into X=t,t+1,t+2,t+3 and Y=t+4
     time_step = 13
     X_train, y_train = create_dataset(train_data, time_step)
@@ -223,6 +211,7 @@ if bt:
 
     print("X_train: ", X_train.shape)
     print("X_test: ", X_test.shape)
+    
     tf.keras.backend.clear_session()
     model=Sequential()
     model.add(LSTM(32,return_sequences=True,input_shape=(time_step,1)))
@@ -230,18 +219,22 @@ if bt:
     model.add(LSTM(32))
     model.add(Dense(1))
     model.compile(loss='mean_squared_error',optimizer='adam')
+    
     # shift train predictions for plotting
     model.fit(X_train,y_train,validation_data=(X_test,y_test),epochs=100,batch_size=32,verbose=1)
+    
     ### Lets Do the prediction and check performance metrics
     train_predict=model.predict(X_train)
     test_predict=model.predict(X_test)
     train_predict.shape, test_predict.shape
+    
     # Transform back to original form
 
     train_predict = scaler.inverse_transform(train_predict)
     test_predict = scaler.inverse_transform(test_predict)
     original_ytrain = scaler.inverse_transform(y_train.reshape(-1,1)) 
     original_ytest = scaler.inverse_transform(y_test.reshape(-1,1)) 
+    
     # Evaluation metrices RMSE and MAE
     print("Train data RMSE: ", math.sqrt(mean_squared_error(original_ytrain,train_predict)))
     print("Train data MSE: ", mean_squared_error(original_ytrain,train_predict))
@@ -258,6 +251,7 @@ if bt:
     print("Train data R2 score:", train_r2_lstm)
     print("Test data R2 score:", test_r2_lstm)
 
+    # shift train predictions for plotting
     look_back=time_step
     trainPredictPlot = np.empty_like(closedf)
     trainPredictPlot[:, :] = np.nan
@@ -272,22 +266,64 @@ if bt:
 
     names = cycle(['Original close price','Train predicted close price','Test predicted close price'])
 
-
     plotdf = pd.DataFrame({'Date': close_stock['Date'],
-                       'original_close': close_stock['Close'],
-                      'train_predicted_close': trainPredictPlot.reshape(1,-1)[0].tolist(),
-                      'test_predicted_close': testPredictPlot.reshape(1,-1)[0].tolist()})
+                           'original_close': close_stock['Close'],
+                          'train_predicted_close': trainPredictPlot.reshape(1,-1)[0].tolist(),
+                          'test_predicted_close': testPredictPlot.reshape(1,-1)[0].tolist()})
 
     fig = px.line(plotdf,x=plotdf['Date'], y=[plotdf['original_close'],plotdf['train_predicted_close'],
-                                          plotdf['test_predicted_close']],
-              labels={'value':'Stock price','Date': 'Date'})
+                                              plotdf['test_predicted_close']],
+                  labels={'value':'Stock price','Date': 'Date'})
     fig.update_layout(title_text='Comparision between original close price vs predicted close price',
-                  plot_bgcolor='white', font_size=15, font_color='black', legend_title_text='Close Price')
+                      plot_bgcolor='white', font_size=15, font_color='black', legend_title_text='Close Price')
     fig.for_each_trace(lambda t:  t.update(name = next(names)))
 
     fig.update_xaxes(showgrid=False)
     fig.update_yaxes(showgrid=False)
     st.pyplot(fig=plt)
+
+    x_input=test_data[len(test_data)-time_step:].reshape(1,-1)
+    temp_input=list(x_input)
+    temp_input=temp_input[0].tolist()
+
+    from numpy import array
+
+    lst_output=[]
+    n_steps=time_step
+    i=0
+    pred_days = 30
+    while(i<pred_days):
+    
+        if(len(temp_input)>time_step):
+        
+            x_input=np.array(temp_input[1:])
+            #print("{} day input {}".format(i,x_input))
+            x_input = x_input.reshape(1,-1)
+            x_input = x_input.reshape((1, n_steps, 1))
+        
+            yhat = model.predict(x_input, verbose=0)
+            #print("{} day output {}".format(i,yhat))
+            temp_input.extend(yhat[0].tolist())
+            temp_input=temp_input[1:]
+            #print(temp_input)
+       
+            lst_output.extend(yhat.tolist())
+            i=i+1
+        
+        else:
+            x_input = x_input.reshape((1, n_steps,1))
+            yhat = model.predict(x_input, verbose=0)
+            temp_input.extend(yhat[0].tolist())
+        
+            lst_output.extend(yhat.tolist())
+            i=i+1
+               
+    print("Output of predicted next days: ", len(lst_output))
+    
+    last_days=np.arange(1,time_step+1)
+    day_pred=np.arange(time_step+1,time_step+pred_days+1)
+    print(last_days)
+    print(day_pred)
     temp_mat = np.empty((len(last_days)+pred_days+1,1))
     temp_mat[:] = np.nan
     temp_mat = temp_mat.reshape(1,-1).tolist()[0]
@@ -314,6 +350,7 @@ if bt:
     fig.update_xaxes(showgrid=False)
     fig.update_yaxes(showgrid=False)
     st.pyplot(fig=plt)
+    
     lstmdf=closedf.tolist()
     lstmdf.extend((np.array(lst_output).reshape(-1,1)).tolist())
     lstmdf=scaler.inverse_transform(lstmdf).reshape(1,-1).tolist()[0]
